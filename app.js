@@ -10,12 +10,11 @@ app.post("/webhook", (req, res) => {
       body.entry[0].changes[0].value.messages[0]
     ) {
       let phone_number_id = body.entry[0].changes[0].value.metadata.phone_number_id;
-      let from = body.entry[0].changes[0].value.messages[0].from;
 
-      // Definir el cuerpo del mensaje de la plantilla
+      // Datos del mensaje de la plantilla
       let messageData = {
         messaging_product: "whatsapp",
-        to: from,
+        to: "51999443948", // Número de teléfono fijo en el mensaje
         type: "template",
         template: {
           name: "warbush_support_2023",
@@ -45,18 +44,13 @@ app.post("/webhook", (req, res) => {
 
       axios({
         method: "POST",
-        url: `https://graph.facebook.com/v18.0/${phone_number_id}/messages`,
-        headers: { "Content-Type": "application/json" },
+        url: `https://graph.facebook.com/v18.0/147014531836606/messages?access_token=EAAKTv1O8JSoBO8rk8g0uWf3E5xX9pIiRjucZCWJfdB89ynVgQOkrBoN72zoT0BnncfzQfuk64r0Lk1nSwnwErikDcZBCFCtvMMVQYvU8F97qWbypqDNBsVU2OQEKYZA7NZCETowkm6T5scTFzKPl1PdHcxVzXiXr7JE14D0moZAFaGQ4QLZBrTc5eU1LlHZCtd9`,
         data: messageData,
-        params: {
-          access_token: token
-        }
-      })
-      .then(response => {
-        console.log('Message sent successfully', response.data);
-      })
-      .catch(error => {
-        console.error('Error sending message', error.response.data);
+        headers: { "Content-Type": "application/json" },
+      }).then(response => {
+        console.log('Template message sent successfully', response.data);
+      }).catch(error => {
+        console.error('Error sending template message', error.response.data);
       });
     }
     res.sendStatus(200);
