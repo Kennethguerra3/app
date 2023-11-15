@@ -3,9 +3,10 @@
 const request = require("request"),
   express = require("express"),
   body_parser = require("body-parser"),
-  axios = require("axios").default,
-  app = express().use(body_parser.json());
+  axios = require("axios").default;
+const formProcessor = require('./formProcessor'); // Asegúrate de que esta ruta sea correcta
 
+const app = express().use(body_parser.json());
 const token = process.env.WHATSAPP_TOKEN;
 let lastMessageTime = 0; // Variable para almacenar la hora del último mensaje enviado
 
@@ -16,6 +17,10 @@ app.post("/webhook", (req, res) => {
 
   console.log(JSON.stringify(req.body, null, 2));
 
+  // Llamar al procesador de formularios para manejar los datos del formulario
+  formProcessor.processFormData(body);
+
+  // Lógica para enviar mensajes de plantilla cada 4 horas
   if (req.body.object) {
     if (
       req.body.entry &&
@@ -27,12 +32,10 @@ app.post("/webhook", (req, res) => {
       let phone_number_id = req.body.entry[0].changes[0].value.metadata.phone_number_id;
       let from = req.body.entry[0].changes[0].value.messages[0].from;
 
-      // Comprobar si han pasado 4 horas desde el último mensaje enviado
       let currentTime = new Date().getTime();
-      if (currentTime - lastMessageTime >= 4 * 60 * 60 * 1000) { // 4 horas en milisegundos
-        lastMessageTime = currentTime; // Actualizar el tiempo del último mensaje enviado
+      if (currentTime - lastMessageTime >= 4 * 60 * 60 * 1000) {
+        lastMessageTime = currentTime;
 
-        // Enviar el mensaje de plantilla
         axios({
           method: "POST",
           url: "https://graph.facebook.com/v12.0/" + phone_number_id + "/messages?access_token=" + token,
@@ -65,8 +68,6 @@ app.post("/webhook", (req, res) => {
               ]
             }
           },
-          
-          
           headers: { "Content-Type": "application/json" },
         }).then(response => {
           console.log('Mensaje de plantilla enviado con éxito');
