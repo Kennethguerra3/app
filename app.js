@@ -1,7 +1,6 @@
 "use strict";
 
-const request = require("request"),
-  express = require("express"),
+const express = require("express"),
   body_parser = require("body-parser"),
   axios = require("axios").default;
 const formProcessor = require('./formProcessor'); // Asegúrate de que esta ruta sea correcta
@@ -10,12 +9,10 @@ const app = express().use(body_parser.json());
 const token = process.env.WHATSAPP_TOKEN;
 let lastMessageTime = 0; // Variable para almacenar la hora del último mensaje enviado
 
-app.listen(process.env.PORT || 1337, () => console.log("webhook is listening"));
+app.listen(process.env.PORT || 3001, () => console.log("webhook is listening"));
 
 app.post("/webhook", (req, res) => {
   let body = req.body;
-
-  console.log(JSON.stringify(req.body, null, 2));
 
   // Llamar al procesador de formularios para manejar los datos del formulario
   formProcessor.processFormData(body);
